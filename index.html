@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARK AI 3.0</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #050b18;
+    color: white;
+}
+
+header {
+    padding: 20px;
+    text-align: center;
+    background: #0b1730;
+    border-bottom: 1px solid #087fbd;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00d9ff;
+    letter-spacing: 3px;
+}
+
+.subtitle {
+    color: #9bb5cc;
+    font-size: 13px;
+    margin-top: 7px;
+}
+
+.container {
+    max-width: 850px;
+    margin: 25px auto;
+    padding: 15px;
+}
+
+.globe {
+    text-align: center;
+    font-size: 65px;
+    animation: spin 12s linear infinite;
+    margin: 15px;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    flex: 1;
+    padding: 13px 5px;
+    background: #10213b;
+    color: white;
+    border: 1px solid #16466b;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tab.active { background: #007ca8; }
+
+.chatbox {
+    background: #0b1730;
+    border: 1px solid #16466b;
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 350px;
+}
+
+.messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.message {
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 9px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+.bot {
+    background: #102b45;
+    border-left: 3px solid #00d9ff;
+}
+
+.user {
+    background: #123d59;
+    text-align: right;
+}
+
+.inputarea {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #17618b;
+    background: #071326;
+    color: white;
+    outline: none;
+}
+
+button { cursor: pointer; }
+
+.send {
+    background: #00a9d6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-weight: bold;
+}
+
+.voice-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.voice-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #087fbd;
+    border-radius: 8px;
+    background: #102b45;
+    color: white;
+}
+
+.voice-btn.off { background: #63303b; }
+
+.send:disabled {
+    opacity: .5;
+    cursor: wait;
+}
+
+.status {
+    color: #00e5a0;
+    font-size: 12px;
+    margin-top: 12px;
+    text-align: center;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #718ba5;
+    font-size: 12px;
+}
+
+@media(max-width: 500px) {
+    .logo { font-size: 23px; }
+    .inputarea { flex-wrap: wrap; }
+    .send { width: 100%; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">DARK AI 3.0</div>
+    <div class="subtitle">YOUR INTELLIGENT AI ASSISTANT</div>
+</header>
+
+<div class="container">
+
+    <div class="globe">🌍</div>
+
+    <div class="tabs">
+        <button class="tab active">AI CHAT</button>
+        <button class="tab" onclick="showComingSoon('IMAGE GENERATOR')">IMAGE</button>
+        <button class="tab" onclick="showComingSoon('SMART VISION')">VISION</button>
+    </div>
+
+    <div class="chatbox">
+
+        <div class="messages" id="messages">
+            <div class="message bot">
+                DARK AI: Hello! I am DARK AI 3.0.
+                Ask me anything!
+            </div>
+        </div>
+
+        <div class="inputarea">
+            <input id="userInput"
+                type="text"
+                placeholder="Ask DARK AI anything..."
+                onkeydown="if(event.key==='Enter') sendMessage()">
+
+            <button class="send" id="sendBtn"
+                onclick="sendMessage()">SEND</button>
+        </div>
+
+        <div class="voice-controls">
+            <button class="voice-btn" id="voiceBtn"
+                onclick="toggleVoice()">🔊 VOICE ON</button>
+
+            <button class="voice-btn"
+                onclick="stopVoice()">⏹ STOP VOICE</button>
+        </div>
+
+        <div class="status" id="status">● SYSTEM READY</div>
+
+    </div>
+</div>
+
+<footer>
+    DARK AI 3.0 © 2026 | POWERED BY GEMINI AI
+</footer>
+
+<script>
+const messages = document.getElementById("messages");
+const input = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const statusText = document.getElementById("status");
+const voiceBtn = document.getElementById("voiceBtn");
+
+let voiceEnabled = true;
+
+function addMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = "message " + type;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+}
+
+function toggleVoice() {
+    voiceEnabled = !voiceEnabled;
+
+    if (!voiceEnabled) {
+        stopVoice();
+        voiceBtn.textContent = "🔇 VOICE OFF";
+        voiceBtn.classList.add("off");
+    } else {
+        voiceBtn.textContent = "🔊 VOICE ON";
+        voiceBtn.classList.remove("off");
+    }
+}
+
+function stopVoice() {
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        statusText.textContent = "● VOICE STOPPED";
+    }
+}
+
+function speakText(text) {
+    if (!voiceEnabled) return;
+
+    if (!("speechSynthesis" in window)) {
+        statusText.textContent = "● VOICE NOT SUPPORTED";
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    // Detect Sinhala or English
+    if (/[\u0D80-\u0DFF]/.test(text)) {
+        speech.lang = "si-LK";
+    } else {
+        speech.lang = "en-US";
+    }
+
+    speech.rate = 0.9;
+    speech.pitch = 1.0;
+    speech.volume = 1.0;
+
+    speech.onstart = function() {
+        statusText.textContent = "● DARK AI IS SPEAKING...";
+    };
+
+    speech.onend = function() {
+        statusText.textContent = "● SYSTEM READY";
+    };
+
+    speech.onerror = function() {
+        statusText.textContent = "● VOICE ERROR";
+    };
+
+    window.speechSynthesis.speak(speech);
+}
+
+async function sendMessage() {
+    const message = input.value.trim();
+
+    if (!message || sendBtn.disabled) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = "WAIT...";
+    statusText.textContent = "● DARK AI IS THINKING...";
+
+    const replyBox = addMessage("Thinking...", "bot");
+
+    try {
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Server error");
+        }
+
+        replyBox.textContent = "DARK AI: " + data.reply;
+
+        // Automatically speak AI reply
+        speakText(data.reply);
+
+    } catch (error) {
+        replyBox.textContent = "DARK AI ERROR: " + error.message;
+        statusText.textContent = "● CONNECTION ERROR";
+    }
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = "SEND";
+    input.focus();
+}
+
+function showComingSoon(feature) {
+    alert(feature + " feature is coming soon!");
+}
+</script>
+
+</body>
+</html>
